@@ -74,4 +74,4 @@ sleep 60
 kubectl exec -it redis-0 -n redis -- sh -c \
  "redis-cli --cluster create redis-0.redis.redis.svc.cluster.local:6379 redis-1.redis.redis.svc.cluster.local:6379 redis-2.redis.redis.svc.cluster.local:6379 redis-3.redis.redis.svc.cluster.local:6379 redis-4.redis.redis.svc.cluster.local:6379 redis-5.redis.redis.svc.cluster.local:6379 -a ${password} --cluster-replicas 1 --cluster-yes"
  helm install web-app web-app/ -n web-app
-
+echo "127.0.0.1    golang.k8s.local" >> /etc/hosts/
