@@ -1,0 +1,138 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-acl
+  namespace: redis
+data:
+  users.acl: |
+    user default on >123 ~* &* +@all
+    user replication on >123 +psync +replconf +ping
+    user worker on >123 ~* &* +@all -@dangerous
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-config
+  namespace: redis
+data:
+  redis.conf: |
+  
+    # important configurations
+    # ------------------------
+    cluster-enabled yes
+    
+    # configuration file used by redis to store cluster info - do not create.
+    # created by redis, just give a path with a filename
+    cluster-config-file /conf/nodes-6379.conf
+    
+    bind 0.0.0.0
+    
+    # configurations for snaposhot and AOF
+    # read more : https://redis.io/docs/manual/persistence/
+    dbfilename dump.rdb
+    dir /data
+    appendonly yes
+    appendfilename "appendonly.aof"
+    
+    # Enabled ACL based auth. 
+    protected-mode yes
+    
+    # This is used by the replics nodes to communicate with master to replicate the data.
+    # we are using a user called "replication" for this, and the a strong pwd for the same is given in masterauth
+    masterauth 123
+    masteruser replication
+    
+    # this is the second ConfiMap will be mounted to. it has the list of uses needed.
+    aclfile /conf/acl/users.acl
+    
+    # port, each redis nodes will be used
+    port 6379
+
+    # More configurations are optional, if not provided, redis will consider default values ------
+    # ------ More details on configuration : https://redis.io/docs/manual/config/ ------
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis
+  namespace: redis
+spec:
+  serviceName: redis
+  replicas: 6   # 6 replicas, 3 master and 3 replicas(slaves)
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      initContainers:
+      - name: config
+        image: redis:7.0.0-alpine
+        command: [ "sh", "-c" ]
+        args:
+          - |
+            if [ -f "/conf/redis.conf" ]; then
+              echo "config exists /conf/redis.conf .. not creating new"
+            else
+              echo "config doesn't exist copying to /conf/redis.conf"
+              cp /tmp/conf/redis.conf /conf/redis.conf
+            fi
+        volumeMounts:
+        - name: standard
+          subPath: conf
+          mountPath: /conf
+        - name: config
+          mountPath: /tmp/conf/
+      containers:
+      - name: redis
+        image: redis:7.0.0-alpine
+        command: ["redis-server"]
+        args: ["/conf/redis.conf"]
+        resources:
+          requests:
+            memory: "100M"
+          limits:
+            memory: "500M"
+        ports:
+        - containerPort: 6379
+          name: redis
+        volumeMounts:
+        - name: standard
+          mountPath: /data
+          subPath: data
+        - name: standard
+          mountPath: /conf
+          subPath: conf
+        - name: config-acl
+          mountPath: /conf/acl/
+      volumes:
+      - name: config
+        configMap:
+          name: redis-config
+      - name: config-acl
+        configMap:
+          name: redis-acl
+  volumeClaimTemplates:
+  - metadata:
+      name: standard
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: redis
+spec:
+  clusterIP: None # None to make it a headless service
+  ports:
+  - port: 6379
+    targetPort: 6379
+    name: redis
+  selector:
+    app: redis

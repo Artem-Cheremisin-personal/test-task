@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.deploymentName }}
+  labels:
+    app: {{.Values.appLabel}}
+spec:
+  replicas: {{.Values.replicaCount}}
+  selector:
+    matchLabels:
+      app: {{.Values.appLabel}}
+  template:
+    metadata:
+      labels:
+        app: {{.Values.appLabel}}
+    spec:
+      topologySpreadConstraints:
+        - maxSkew: {{ .Values.maxPodPerNode}}
+          topologyKey: zone
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              type: {{.Values.appLabel}}     
+      containers:
+      - name: {{.Values.appName}}
+        image: {{ .Values.image}} 
+        resources:
+          limits:
+            memory: {{.Values.resources.limits.memory}}
+            cpu: {{.Values.resources.limits.cpu}}
+          requests:
+            memory: {{.Values.resources.requests.memory}}
+            cpu: {{.Values.resources.requests.cpu}}        
+        imagePullPolicy: Never                
+        ports:
+        - containerPort: {{ .Values.appPort }}
+          name: {{ .Values.appPortName}}
+          protocol: TCP          
+        env:
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-pwd
+              key: password
+        - name: REDIS_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: golang-cm
+              key: redis_host
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: golang-cm
+              key: app_port
+        - name: REDIS_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: golang-cm
+              key: redis_port                                                                   

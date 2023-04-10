@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: golang-ext-svc
+  namespace: default
+spec:
+  type: ExternalName
+  externalName: golang-app-service.web-app.svc.cluster.local
+  ports:
+  - port: 8080
+    targetPort: 8080

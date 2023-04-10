@@ -1,0 +1,70 @@
+# Default values for web-app.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+
+# Number of replica for the golang deployment 
+replicaCount: 2
+
+# docker image for the golang app 
+image: go-lang-demo:latest
+
+# Name for the service that routes requests to golang application
+serviceName: golang-app-service
+
+# k8s labels for golang applications 
+appLabel: golang
+
+# any name for port of golang service 
+nameOfServicePort: svc-port-name
+
+# Port to be exposed for golang service 
+servicePort: 8080
+
+# any name for port of golang app pod 
+appPortName: app-port-name
+
+# Deployment name for k8s
+deploymentName: app-golang
+
+# Max pods per node(emulation)
+maxPodPerNode: 2
+
+#  Name of k8s pod with golang running inside  
+appName: golang-id-handler
+
+configMapName: configmap-redis
+
+secretName: secrets-redis
+
+# Port for the go lang app to be exposed 
+appPort: 8080
+
+# Resources definition for golang deployment
+resources:
+  limits:
+    memory: 500M
+    cpu: 0.5
+  requests:
+    memory: 300M
+    cpu: 0.2
+
+
+# Horizontal pod autoscaler parameters for golang deployment
+hpa:
+# name of Hpa resource
+  name: hpa-goolang
+# MIN amout of replicas running within golang deployment
+  MinReplicas: 2
+# MAX amout of replicas running within golang deployment  
+  MaxReplicas: 4
+# % of node utilization to scale-out deployment
+  cpuPercentageHpaScale: 25
+# Values for configmap
+cm:
+# Port to connect to redis
+  redisPort: "6379"
+# Full redis servic DNS name
+  redisSvcFullDns: "redis.redis.svc.cluster.local"
+  
+

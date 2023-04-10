@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: golang-cm
+  namespace: web-app
+data:
+  redis_host: "{{.Values.cm.redisSvcFullDns}}"
+  app_port: "{{.Values.appPort}}"
+  redis_port: "{{.Values.cm.redisPort}}"
