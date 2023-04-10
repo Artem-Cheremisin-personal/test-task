@@ -20,7 +20,7 @@
 
 >example ```bash autoconf.sh -p yourpss -r replication pass -f true```
 
-> access app though link http://golang.k8s.local/id
+> access app though link http://golang.k8s.local:8080/id
 
 ## Application is able to be deployed on kubernetes and can be accessed from outside the cluster
 1. Application automatically deploys to k8s cluster using kind(Kubernetes in docker) 
