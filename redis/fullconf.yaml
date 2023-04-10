@@ -5,9 +5,9 @@ metadata:
   namespace: redis
 data:
   users.acl: |
-    user default on >123 ~* &* +@all
-    user replication on >123 +psync +replconf +ping
-    user worker on >123 ~* &* +@all -@dangerous
+    user default on >your_password ~* &* +@all
+    user replication on >strong_password +psync +replconf +ping
+    user worker on >your_password ~* &* +@all -@dangerous
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -39,7 +39,7 @@ data:
     
     # This is used by the replics nodes to communicate with master to replicate the data.
     # we are using a user called "replication" for this, and the a strong pwd for the same is given in masterauth
-    masterauth 123
+    masterauth strong_password
     masteruser replication
     
     # this is the second ConfiMap will be mounted to. it has the list of uses needed.
