@@ -5,6 +5,7 @@
 1. Verify that your instance has access to internet
 2. Clone this repository
 3. Run bash script **(autoconf.sh)** with needed flags
+4. Better to use root user
 >-p - password to connect to redis (required)
 
 >-d - 'true' to install latest version of docker (optional)
@@ -54,6 +55,7 @@ If istance goes down or internet connection - our product will go down as well.
 6. Usage of **serverTLSBootstrap: true** in nodes configuration - By default the kubelet serving certificate deployed by kubeadm is self-signed [k8s_doc](https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-certs/#kubelet-serving-certs)
 # Improvemets
 1. Cross-OS installation
+2. No prompt on script execution
 2. Helm chart for redis
 3. Manual configuration of cluster
 4. HAproxy
