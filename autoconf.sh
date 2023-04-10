@@ -15,12 +15,12 @@ done
 
 function install_docker {
     sudo apt-get update 
-    sudo apt-get install curl ca-certificates git software-properties-common apt-transport-https
+    sudo apt-get install -y curl ca-certificates git software-properties-common apt-transport-https
     curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
     sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
     apt-cache policy docker-ce
-    sudo apt install docker-ce
+    sudo apt install docker-ce -y
     sudo usermod -aG docker ${USER} # add current user to docker gruop , to be able to execute docker commands 
     sudo systemctl enable docker   
 }
